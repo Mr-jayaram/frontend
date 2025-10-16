@@ -71,7 +71,7 @@
     function getProducts(pageNum) {
       const products = [];
       const start = (pageNum - 1) * 8 + 1;
-      for (let i = start; i < start + 20; i++) {
+      for (let i = start; i < start + 100; i++) {
         products.push({
           id: i,
           title: 'Product ' + i,
