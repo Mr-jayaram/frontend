@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Infinite Scroll + Lazy Load</title>
+
+  <!-- Basic styling -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f9fb;
+      margin: 0;
+      padding: 20px;
+    }
+    h2 {
+      text-align: center;
+    }
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .product-card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      text-align: center;
+      font-size: 14px;
+      padding-bottom: 10px;
+    }
+    .product-card img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      display: block;
+    }
+    .product-card h3 {
+      margin: 10px 0 5px;
+      font-size: 15px;
+    }
+    .product-card p {
+      margin: 0;
+      color: #009688;
+      font-weight: bold;
+    }
+    .loader {
+      text-align: center;
+      padding: 20px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Simple Infinite Scroll + Lazy Load</h2>
+  <div class="product-grid"></div>
+  <div class="loader">Loading...</div>
+
+  <!-- Libraries -->
+  <script src="https://unpkg.com/infinite-scroll@4/dist/infinite-scroll.pkgd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.3.2/lazysizes.min.js" async></script>
+
+  <script>
+    const grid = document.querySelector('.product-grid');
+    let page = 1;
+
+    // Generate fake products
+    function getProducts(pageNum) {
+      const products = [];
+      const start = (pageNum - 1) * 8 + 1;
+      for (let i = start; i < start + 20; i++) {
+        products.push({
+          id: i,
+          title: 'Product ' + i,
+          price: '₹' + (Math.random() * 200 + 100).toFixed(0),
+          image: `https://picsum.photos/seed/item${i}/300/200`
+        });
+      }
+      return products;
+    }
+
+    function renderProducts(products) {
+      const html = products.map(p => `
+        <div class="product-card">
+          <img data-src="${p.image}" class="lazyload" alt="${p.title}">
+          <h3>${p.title}</h3>
+          <p>${p.price}</p>
+        </div>
+      `).join('');
+      grid.insertAdjacentHTML('beforeend', html);
+    }
+
+    // Infinite Scroll setup
+    const infScroll = new InfiniteScroll(grid, {
+      path() {
+        if (page >= 10) return null; // Stop after 10 pages
+        return '#page-' + (page + 1);
+      },
+      append: '.product-card',
+      history: false,
+      checkLastPage: false,
+    });
+
+    // Load next products
+    infScroll.on('load', () => {
+      page++;
+      const newProducts = getProducts(page);
+      renderProducts(newProducts);
+    });
+
+    // Initial load
+    renderProducts(getProducts(page));
+  </script>
+</body>
+</html>
